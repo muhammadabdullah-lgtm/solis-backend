@@ -7,6 +7,15 @@ gem "rails", "~> 7.2.0"
 gem "pg"
 
 
+gem 'devise'
+gem 'devise-jwt'
+gem 'omniauth'
+gem 'googleauth'
+gem 'rack-cors'
+
+
+
+
 
 # Dot env package
 gem "dotenv-rails"
