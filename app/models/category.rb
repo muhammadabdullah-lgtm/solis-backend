@@ -10,7 +10,7 @@ class Category < ApplicationRecord
   validates :slug, presence: true, uniqueness: true
 
   validate :parent_cannot_be_self
-  validate :parent_cannot_have_parent
+  # validate :parent_cannot_have_parent (This validation is usefull if we want to restrict 2 level nesting)
 
   scope :active, -> { where(status: :active) }
   scope :root_categories, -> { where(parent_id: nil) }
@@ -32,9 +32,11 @@ class Category < ApplicationRecord
     self.slug = name.to_s.parameterize if slug.blank? && name.present?
   end
 
+
   def parent_cannot_be_self
-    errors.add(:parent_id, "cannot be same as category") if parent_id == id
-  end
+  return if id.nil?
+  errors.add(:parent_id, "cannot be same as category") if parent_id == id
+end
 
   def parent_cannot_have_parent
     return if parent.blank?

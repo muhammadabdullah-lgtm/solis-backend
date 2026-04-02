@@ -2,7 +2,10 @@ module Api
   module V1
     class CategoriesController < ApplicationController
       def index
-        categories = Category.active.includes(:subcategories).where(parent_id: nil).order(:name)
+        categories = Category.active
+                             .includes(:subcategories)
+                             .where(parent_id: nil)
+                             .order(:name)
 
         render json: {
           categories: categories.map { |category| category_payload(category) }
@@ -16,7 +19,7 @@ module Api
           id: category.id,
           name: category.name,
           slug: category.slug,
-          subcategories: category.subcategories.active.map do |subcategory|
+          subcategories: category.subcategories.select(&:active?).map do |subcategory|
             {
               id: subcategory.id,
               name: subcategory.name,

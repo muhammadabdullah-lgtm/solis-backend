@@ -8,6 +8,10 @@ module Api
         private
 
         def authorize_admin!
+
+
+          Rails.logger.debug "This is logger #{current_user}"
+
           return if current_user&.admin?
 
           render json: { message: 'Access denied' }, status: :forbidden

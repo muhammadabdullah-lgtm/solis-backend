@@ -8,6 +8,14 @@ Bundler.require(*Rails.groups)
 
 module SolisBackend
   class Application < Rails::Application
+
+
+#         config.middleware.use ActionDispatch::RequestId
+#  # Force JSON format for API routes before Warden touches the request
+#     config.middleware.insert_before Warden::Manager, Rack::Config do |env|
+#       env['HTTP_ACCEPT'] = 'application/json' if env['PATH_INFO'].start_with?('/api/')
+#     end
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
 

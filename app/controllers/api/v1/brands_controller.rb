@@ -9,7 +9,7 @@ module Api
             {
               id: brand.id,
               name: brand.name,
-              slug: brand.slug
+              slug: brand.slug,
             }
           end
         }, status: :ok

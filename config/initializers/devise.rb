@@ -27,9 +27,9 @@ config.jwt do |jwt|
 
   jwt.expiration_time = 1.day.to_i
 
-  jwt.request_formats = {
-    user: [:json]
-  }
+  # jwt.request_formats = {
+  #   user: [:json]
+  # }
 end
 
 
@@ -122,7 +122,12 @@ end
   # Notice that if you are skipping storage for all authentication paths, you
   # may want to disable generating routes to Devise's sessions controller by
   # passing skip: :sessions to `devise_for` in your config/routes.rb
-  config.skip_session_storage = [:http_auth]
+  # API-only app + JWT: do not try to persist authentication in server session.
+  # `:params_auth` covers email/password sign-in and sign-up flows.
+  config.skip_session_storage = [:http_auth, :params_auth]
+
+  # Avoid Devise treating any format as navigational (redirect/session oriented).
+  config.navigational_formats = []
 
   # By default, Devise cleans up the CSRF token on authentication to
   # avoid CSRF token fixation attacks. This means that, when using AJAX
@@ -309,6 +314,10 @@ end
   #   warden_config.intercept_401 = false
   #   warden_config.default_strategies(scope: :user).unshift :some_external_strategy
   # end
+
+#   config.warden do |warden_config|
+#   warden_config.default_strategies(:database_authenticatable, scope: :user)
+# end
 
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine

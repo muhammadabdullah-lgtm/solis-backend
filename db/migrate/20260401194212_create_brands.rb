@@ -8,8 +8,8 @@ class CreateBrands < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :brands, :name
-    add_index :brands, :slug, unique: true
-    add_index :brands, :status
+    # add_index :brands, :name
+    # add_index :brands, :slug, unique: true
+    # add_index :brands, :status
   end
 end

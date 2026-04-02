@@ -27,11 +27,11 @@ class CreateProducts < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :products, :slug, unique: true
-    add_index :products, :sku, unique: true
-    add_index :products, :status
-    add_index :products, :price
-    add_index :products, :is_featured
-    add_index :products, [:category_id, :brand_id]
+    # add_index :products, :slug, unique: true
+    # add_index :products, :sku, unique: true
+    # add_index :products, :status
+    # add_index :products, :price
+    # add_index :products, :is_featured
+    # add_index :products, [:category_id, :brand_id]
   end
 end
