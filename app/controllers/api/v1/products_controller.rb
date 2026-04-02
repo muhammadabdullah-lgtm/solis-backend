@@ -4,7 +4,7 @@ module Api
       before_action :set_product, only: [:show]
 
       def index
-        base_scope = Product.active.includes(:category, :brand)
+        base_scope = Product.active.includes(:category, :brand, :reviews)
         products = Products::FilterQuery.new(base_scope, filter_params).call
 
         render json: {
@@ -21,7 +21,7 @@ module Api
       private
 
       def set_product
-        @product = Product.active.includes(:category, :brand).find(params[:id])
+        @product = Product.active.includes(:category, :brand, :reviews).find(params[:id])
       end
 
       def filter_params
@@ -42,6 +42,8 @@ module Api
           is_featured: product.is_featured,
           currency: product.currency,
           in_stock: product.in_stock?,
+          average_rating: product.reviews.any? ? product.reviews.sum(&:rating).to_f / product.reviews.size : nil,
+          reviews_count:  product.reviews.size,
           category: {
             id: product.category.id,
             name: product.category.name,
@@ -71,6 +73,8 @@ module Api
           is_featured: product.is_featured,
           currency: product.currency,
           in_stock: product.in_stock?,
+          average_rating: product.reviews.any? ? product.reviews.sum(&:rating).to_f / product.reviews.size : nil,
+          reviews_count:  product.reviews.size,
           meta_title: product.meta_title,
           meta_description: product.meta_description,
           category: {

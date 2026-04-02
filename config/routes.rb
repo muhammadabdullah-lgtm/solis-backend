@@ -13,14 +13,28 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-            resources :products, only: [:index, :show]
+            resources :products, only: [:index, :show] do
+        resources :reviews, only: [:index, :create, :update, :destroy]
+      end
       resources :categories, only: [:index]
       resources :brands, only: [:index]
-      namespace :admin do
 
+      resource :cart, only: [:show, :destroy] do
+        resources :items, only: [:create, :update, :destroy], controller: 'cart_items'
+      end
+
+      resources :orders, only: [:index, :show, :create] do
+        member do
+          patch :cancel
+        end
+      end
+
+      namespace :admin do
         resources :categories
         resources :brands
         resources :products
+        resources :orders,  only: [:index, :show, :update]
+        resources :reviews, only: [:index, :destroy]
       end
     end
   end

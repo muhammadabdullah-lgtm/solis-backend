@@ -1,6 +1,7 @@
 class Product < ApplicationRecord
   belongs_to :category
   belongs_to :brand
+  has_many :reviews, dependent: :destroy
 
   enum :status, { draft: 0, active: 1, archived: 2 }
 
