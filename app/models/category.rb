@@ -10,7 +10,7 @@ class Category < ApplicationRecord
   validates :slug, presence: true, uniqueness: true
 
   validate :parent_cannot_be_self
-  # validate :parent_cannot_have_parent (This validation is usefull if we want to restrict 2 level nesting)
+  validate :max_depth_three_levels
 
   scope :active, -> { where(status: :active) }
   scope :root_categories, -> { where(parent_id: nil) }
@@ -26,23 +26,26 @@ class Category < ApplicationRecord
     parent_id.present?
   end
 
+  def depth
+    return 0 if parent.blank?
+    1 + parent.depth
+  end
+
   private
 
   def generate_slug
     self.slug = name.to_s.parameterize if slug.blank? && name.present?
   end
 
-
   def parent_cannot_be_self
-  return if id.nil?
-  errors.add(:parent_id, "cannot be same as category") if parent_id == id
-end
+    return if id.nil?
+    errors.add(:parent_id, 'cannot be same as category') if parent_id == id
+  end
 
-  def parent_cannot_have_parent
+  def max_depth_three_levels
     return if parent.blank?
-
-    if parent.parent_id.present?
-      errors.add(:parent_id, "can only assign a root category as parent")
+    if parent.depth >= 2
+      errors.add(:parent_id, 'maximum category nesting is 3 levels')
     end
   end
 end

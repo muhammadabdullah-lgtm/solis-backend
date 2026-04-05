@@ -16,13 +16,32 @@ module Api
         end
 
         def show
-          render json: @category.as_json(
-            only: [:id, :name, :slug, :status, :parent_id, :created_at, :updated_at],
-            include: {
-              parent: { only: [:id, :name, :slug] },
-              subcategories: { only: [:id, :name, :slug, :status] }
-            }
-          ), status: :ok
+          render json: {
+            id:         @category.id,
+            name:       @category.name,
+            slug:       @category.slug,
+            status:     @category.status,
+            parent_id:  @category.parent_id,
+            depth:      @category.depth,
+            created_at: @category.created_at,
+            updated_at: @category.updated_at,
+            parent: @category.parent && {
+              id:   @category.parent.id,
+              name: @category.parent.name,
+              slug: @category.parent.slug
+            },
+            subcategories: @category.subcategories.map do |sub|
+              {
+                id:           sub.id,
+                name:         sub.name,
+                slug:         sub.slug,
+                status:       sub.status,
+                subcategories: sub.subcategories.map do |subsub|
+                  { id: subsub.id, name: subsub.name, slug: subsub.slug, status: subsub.status }
+                end
+              }
+            end
+          }, status: :ok
         end
 
         def create
@@ -68,7 +87,7 @@ module Api
         private
 
         def set_category
-          @category = Category.find(params[:id])
+          @category = Category.includes(subcategories: :subcategories).find(params[:id])
         end
 
         def category_params

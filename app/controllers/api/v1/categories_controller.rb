@@ -3,7 +3,7 @@ module Api
     class CategoriesController < ApplicationController
       def index
         categories = Category.active
-                             .includes(:subcategories)
+                             .includes(subcategories: :subcategories)
                              .where(parent_id: nil)
                              .order(:name)
 
@@ -16,15 +16,23 @@ module Api
 
       def category_payload(category)
         {
-          id: category.id,
-          name: category.name,
-          slug: category.slug,
-          subcategories: category.subcategories.select(&:active?).map do |subcategory|
+          id:            category.id,
+          name:          category.name,
+          slug:          category.slug,
+          subcategories: category.subcategories.select(&:active?).map do |sub|
             {
-              id: subcategory.id,
-              name: subcategory.name,
-              slug: subcategory.slug,
-              parent_id: subcategory.parent_id
+              id:            sub.id,
+              name:          sub.name,
+              slug:          sub.slug,
+              parent_id:     sub.parent_id,
+              subcategories: sub.subcategories.select(&:active?).map do |subsub|
+                {
+                  id:        subsub.id,
+                  name:      subsub.name,
+                  slug:      subsub.slug,
+                  parent_id: subsub.parent_id
+                }
+              end
             }
           end
         }
