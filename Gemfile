@@ -12,6 +12,7 @@ gem 'devise-jwt'
 gem 'omniauth'
 gem 'googleauth'
 gem 'rack-cors'
+gem 'kaminari'
 
 
 

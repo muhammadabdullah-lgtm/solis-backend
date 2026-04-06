@@ -6,9 +6,16 @@ module Api
       def index
         base_scope = Product.active.includes(:category, :brand, :reviews)
         products = Products::FilterQuery.new(base_scope, filter_params).call
+                     .page(params[:page]).per(params[:per_page] || 12)
 
         render json: {
-          products: products.map { |product| product_payload(product) }
+          products: products.map { |product| product_payload(product) },
+          pagination: {
+            current_page:  products.current_page,
+            total_pages:   products.total_pages,
+            total_count:   products.total_count,
+            per_page:      products.limit_value
+          }
         }, status: :ok
       end
 
@@ -25,7 +32,7 @@ module Api
       end
 
       def filter_params
-        params.permit(:category_id, :brand_id, :min_price, :max_price, :q, :sort)
+        params.permit(:category_id, :brand_id, :min_price, :max_price, :q, :sort, :page, :per_page, :min_rating)
       end
 
       def product_payload(product)

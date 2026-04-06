@@ -58,7 +58,7 @@ module Orders
       total = cart_items.sum { |item| item.product.price * item.quantity }
 
       order = @user.orders.create!(
-        status:      :pending,
+        status:      :delivered,
         total_price: total,
         currency:    'AED',
         **@address_params

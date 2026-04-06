@@ -11,6 +11,7 @@ module Products
       products = filter_by_brand(products)
       products = filter_by_price_range(products)
       products = filter_by_search(products)
+      products = filter_by_rating(products)
       products = apply_sort(products)
       products
     end
@@ -41,6 +42,17 @@ module Products
       end
 
       products
+    end
+
+    def filter_by_rating(products)
+      return products if params[:min_rating].blank?
+
+      min = params[:min_rating].to_f
+      qualifying_ids = Product.joins(:reviews)
+                               .group("products.id")
+                               .having("AVG(reviews.rating) >= ?", min)
+                               .pluck(:id)
+      products.where(id: qualifying_ids)
     end
 
     def filter_by_search(products)
