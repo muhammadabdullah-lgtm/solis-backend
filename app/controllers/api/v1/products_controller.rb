@@ -4,22 +4,27 @@ module Api
       before_action :set_product, only: [:show]
 
       def index
-        base_scope = Product.active.includes(:category, :brand, :reviews)
+        # Remove .include method to add N+1 queries
+        base_scope = Product.active
+
         products = Products::FilterQuery.new(base_scope, filter_params).call
                      .page(params[:page]).per(params[:per_page] || 12)
 
         render json: {
           products: products.map { |product| product_payload(product) },
           pagination: {
-            current_page:  products.current_page,
-            total_pages:   products.total_pages,
-            total_count:   products.total_count,
-            per_page:      products.limit_value
+            current_page: products.current_page,
+            total_pages: products.total_pages,
+            total_count: products.total_count,
+            per_page: products.limit_value
           }
         }, status: :ok
       end
 
       def show
+        # Removed .include
+        @product = Product.active.find(params[:id])
+
         render json: {
           product: product_detail_payload(@product)
         }, status: :ok
@@ -27,14 +32,21 @@ module Api
 
       private
 
-      def set_product
-        @product = Product.active.includes(:category, :brand, :reviews).find(params[:id])
-      end
-
       def filter_params
-        params.permit(:category_id, :brand_id, :min_price, :max_price, :q, :sort, :page, :per_page, :min_rating)
+        params.permit(
+          :category_id,
+          :brand_id,
+          :min_price,
+          :max_price,
+          :q,
+          :sort,
+          :page,
+          :per_page,
+          :min_rating
+        )
       end
 
+      # N+1
       def product_payload(product)
         {
           id: product.id,
@@ -49,14 +61,26 @@ module Api
           is_featured: product.is_featured,
           currency: product.currency,
           in_stock: product.in_stock?,
-          average_rating: product.reviews.any? ? product.reviews.sum(&:rating).to_f / product.reviews.size : nil,
-          reviews_count:  product.reviews.size,
+
+          # N+1 QUERY
+          average_rating: if product.reviews.any?
+                            product.reviews.sum(&:rating).to_f / product.reviews.size
+                          else
+                            nil
+                          end,
+
+          # N+1 QUERY
+          reviews_count: product.reviews.size,
+
+          # N+1 QUERY 
           category: {
             id: product.category.id,
             name: product.category.name,
             slug: product.category.slug,
             parent_id: product.category.parent_id
           },
+
+          # N+1 QUERY
           brand: {
             id: product.brand.id,
             name: product.brand.name,
@@ -80,24 +104,42 @@ module Api
           is_featured: product.is_featured,
           currency: product.currency,
           in_stock: product.in_stock?,
-          average_rating: product.reviews.any? ? product.reviews.sum(&:rating).to_f / product.reviews.size : nil,
-          reviews_count:  product.reviews.size,
+
+          # N+1 
+          average_rating: if product.reviews.any?
+                            product.reviews.sum(&:rating).to_f / product.reviews.size
+                          else
+                            nil
+                          end,
+
+          reviews_count: product.reviews.size,
+
           meta_title: product.meta_title,
           meta_description: product.meta_description,
+
+          #  N+1
           category: {
             id: product.category.id,
             name: product.category.name,
             slug: product.category.slug,
             parent_id: product.category.parent_id
           },
+
+          #  N+1
           brand: {
             id: product.brand.id,
             name: product.brand.name,
             slug: product.brand.slug
           },
+
           created_at: product.created_at,
           updated_at: product.updated_at
         }
+      end
+
+      def set_product
+     
+        @product = Product.active.find(params[:id])
       end
     end
   end
