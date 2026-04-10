@@ -1,6 +1,18 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+
+
+
+
+config.after_initialize do
+  Bullet.enable = true
+  Bullet.alert = true      # browser popup
+  Bullet.console = true    # logs in browser console
+  Bullet.rails_logger = true # logs in Rails server
+end
+
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded any time

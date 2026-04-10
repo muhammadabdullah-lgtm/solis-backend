@@ -16,7 +16,9 @@ gem 'kaminari'
 
 
 
-
+group :development do
+  gem 'bullet'
+end
 
 # Dot env package
 gem "dotenv-rails"
